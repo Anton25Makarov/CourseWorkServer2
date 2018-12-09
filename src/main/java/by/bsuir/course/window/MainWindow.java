@@ -1,19 +1,22 @@
 package by.bsuir.course.window;
 
+import by.bsuir.course.server.ServerConfigurator;
+import by.bsuir.course.server.ServerProperties;
 import by.bsuir.course.server.ServerThread;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.SocketException;
+import java.net.*;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainWindow extends JFrame {
     private static final int ACTIVE_PORT = 8071;
+    private InetAddress addr;
+    private int backlog;
+    private int port;
 
     private JPanel panel;
     private JButton startButton;
@@ -35,17 +38,22 @@ public class MainWindow extends JFrame {
 
         Runnable startServer = () -> {
             try {
-                serverSocket = new ServerSocket(ACTIVE_PORT);
+                setServerParameters();
+                serverSocket = new ServerSocket(port, backlog, addr);
                 while (serverWork) {
                     System.out.println("wait connection ...");
 
                     Socket sock = serverSocket.accept();
                     System.out.println(sock.getInetAddress().getHostName() + " connected");
-                    connectedList.append("Подключился: " + sock.getInetAddress() + " - " + (new Date()).toString() + "\n");
+                    connectedList.append("Подключился: " + sock.getInetAddress() +
+                            "-" + sock.getPort() + " - " + (new Date()).toString() + "\n");
 
                     ServerThread server = new ServerThread(sock);
                     server.start();//запуск потока
                 }
+            } catch (UnknownHostException e) {
+                socketStatus.setText("Сокет закрыт");
+                JOptionPane.showMessageDialog(this, "Неизвестный номер хоста");
             } catch (SocketException e) {
                 socketStatus.setText("Сокет закрыт");
                 System.out.println("closed");
@@ -93,7 +101,7 @@ public class MainWindow extends JFrame {
         socketStatus.setSize(100, 100);
         socketStatus.setBackground(Color.pink);
 
-        activePort = new JLabel("Автивный порт: " + ACTIVE_PORT);
+        activePort = new JLabel("Активный порт: " + ACTIVE_PORT);
         activePort.setLocation(20, 400);
         activePort.setSize(150, 100);
         activePort.setBackground(Color.pink);
@@ -110,5 +118,15 @@ public class MainWindow extends JFrame {
         panel.add(connectedList);
 
         add(panel);
+    }
+
+    private void setServerParameters() throws UnknownHostException {
+        ServerConfigurator configurator = new ServerConfigurator();
+
+        ServerProperties properties = configurator.getProperties();
+
+        addr = InetAddress.getByName(properties.getIp());
+        backlog = properties.getBacklog();
+        port = properties.getPort();
     }
 }

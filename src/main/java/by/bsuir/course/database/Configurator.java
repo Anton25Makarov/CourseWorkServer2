@@ -6,19 +6,18 @@ import com.google.gson.GsonBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
 
 public class Configurator {
-    private static final String FILE_PATH = "src/main/resources/properties.json";
-//    private static final String FILE_PATH = "src/main/java/by/bsuir/course/resources/properties.json";
+    private static final String FILE_PATH = "src/main/resources/dbProperties.json";
+//    private static final String FILE_PATH = "src/main/java/by/bsuir/course/resources/dbProperties.json";
 
     public DataBaseProperties getProperties() {
         String json = "";
         try {
             StringBuffer stringBuffer = new StringBuffer();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/properties.json")));
+            BufferedReader bufferedReader =
+                    new BufferedReader(
+                            new InputStreamReader(getClass().getResourceAsStream("/dbProperties.json")));
             String line = null;
 
             while ((line = bufferedReader.readLine()) != null) {
@@ -27,13 +26,6 @@ public class Configurator {
             }
 
             json = stringBuffer.toString();
-//            System.out.println(stringBuffer);
-
-           /* List<String> strings = Files.readAllLines(Paths.get(FILE_PATH));
-
-            for (String string : strings) {
-                json += string;
-            }*/
 
         } catch (IOException e) {
             e.printStackTrace();

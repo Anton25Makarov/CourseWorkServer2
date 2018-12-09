@@ -8,5 +8,7 @@ public class Main {
         MainWindow mainWindow = new MainWindow();
         mainWindow.setLocationRelativeTo(null);
         mainWindow.setVisible(true);
+
+
     }
 }
